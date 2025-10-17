@@ -1,76 +1,122 @@
-// src/components/Scenario.tsx
-import React, { useState } from 'react'
-import type { ScenarioData } from '@/types'
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import networking_img from '@/assets/Networking.jpg'
+import software_img from '@/assets/Software.jpg'
+import cyber_security_img from '@/assets/Cyber_security.jpg'
 
-interface ScenarioProps {  
-  initialData: ScenarioData
-}
+const Selection = () => {
+  const navigate = useNavigate()
+  const dropdownRef = useRef<HTMLUListElement | null>(null)
 
-const Scenario: React.FC<ScenarioProps> = ({ initialData }) => {
-  const [currentScenario] = useState<ScenarioData>(initialData)
+  const card = [
+    { label: 'network_security', display: 'Network security', img: networking_img },
+    {
+      label: 'secure_software_development',
+      display: 'Secure software development',
+      img: software_img,
+    },
+    { label: 'cyber_hygiene', display: 'Cyber hygiene', img: cyber_security_img },
+  ]
 
-  async function fetchScenario(
-    currentScenario: ScenarioData,
-    selectedBlock: string,
-  ): Promise<ScenarioData> {    
-    // Example structure only — do not uncomment until backend exists.
-    const response = await fetch(`${import.meta.env.VITE_BASE_API_URL}/scenario/next`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        scenario: currentScenario,
-        choice: selectedBlock,
-      }),
+  const taskTypes = [
+    { label: 'Drag & Drop', value: 'drag_and_drop' },
+    { label: 'Multiple Choice', value: 'multiple_choice' },
+    { label: 'Scenario', value: 'scenario' },
+  ]
+
+  // dropdown state
+  const [dropdown, setDropdown] = useState<{
+    visible: boolean
+    x: number
+    y: number
+    domain: string | null
+  }>({ visible: false, x: 0, y: 0, domain: null })
+
+  // handle card click
+  const handleCardClick = (e: React.MouseEvent, domain: string) => {
+    e.stopPropagation()
+    setDropdown({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      domain,
     })
+  }
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch next scenario')
+  // handle selection
+  const handleTaskSelect = (taskType: string) => {
+    if (!dropdown.domain) return
+    setDropdown({ visible: false, x: 0, y: 0, domain: null })
+    navigate(`/task/${dropdown.domain}/${taskType}`)
+  }
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdown({ visible: false, x: 0, y: 0, domain: null })
+      }
     }
 
-    const data: ScenarioData = await response.json()
-    return data
-
-    // Temporary placeholder
-    console.log('fetchScenario called with:', currentScenario, selectedBlock)
-    throw new Error('fetchScenario: baseAPI not yet defined')
-  }
-
-  const handleSelect = (choice: string) => {
-    console.log('Selected block:', choice)
-    console.log('Current scenario:', currentScenario)
-  }
+    if (dropdown.visible) {
+      document.addEventListener('click', handleClickOutside)
+    }
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [dropdown.visible])
 
   return (
-    <div className="flex flex-col items-center text-center w-full px-2 sm:px-4">
-      {/* Description (text above the rectangle) */}
-      <h3 className="text-base sm:text-lg font-medium text-white mb-4 leading-relaxed max-w-2xl">
-        {currentScenario.description}
-      </h3>
-
-      {/* Rectangle container */}
-      <div className="w-full max-w-xl bg-gray-800 rounded-xl shadow-lg p-6 mb-4 border border-gray-700">
-        <p className="text-sm sm:text-base text-gray-300 whitespace-pre-line">
-          {/* Placeholder for future dynamic content */}
-        </p>
+    <div className="min-h-screen relative bg-black text-white">
+      <div className="flex justify-center w-full py-5">
+        <h1 className="text-4xl md:text-5xl font-bold text-white">
+          Select one of the options
+        </h1>
       </div>
 
-      {/* Blocks (answer buttons) */}
-      <div className="flex flex-wrap justify-center gap-3 w-full">
-        {currentScenario.blocks.map((block) => (
-          <button
-            key={block}
-            onClick={() => handleSelect(block)}
-            className="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-blue-600 active:bg-blue-700 
-                       text-white rounded-lg transition-all text-sm sm:text-base font-medium 
-                       focus:outline-none focus:ring-2 focus:ring-blue-400 hover:scale-[1.03]">
-            {block}
-          </button>
+      <div className="flex flex-col lg:flex-row justify-center items-center gap-4 px-4 py-5">
+        {card.map(({ label, display, img }) => (
+          <div
+            key={label}
+            onClick={(e) => handleCardClick(e, label)}
+            className="w-full lg:flex-1 relative flex justify-center items-center 
+                       text-center text-2xl font-bold rounded-lg border border-transparent 
+                       text-white hover:opacity-90 cursor-pointer select-none 
+                       min-h-[25vh] lg:min-h-[70vh] overflow-hidden"
+            style={{
+              backgroundImage: `url(${img})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}>
+            <span className="relative z-10 bg-black/70 px-4 py-2 rounded max-w-[70%]">
+              {display}
+            </span>
+          </div>
         ))}
       </div>
+
+      {/* dropdown */}
+      {dropdown.visible && (
+        <ul
+          ref={dropdownRef}
+          className="fixed bg-gray-900 border border-gray-700 rounded shadow-lg text-white text-sm"
+          style={{
+            top: dropdown.y,
+            left: dropdown.x,
+            transform: 'translate(5px, 5px)', // tiny offset so cursor doesn’t cover it
+            zIndex: 1000,
+          }}
+          onClick={(e) => e.stopPropagation()}>
+          {taskTypes.map((t) => (
+            <li
+              key={t.value}
+              onClick={() => handleTaskSelect(t.value)}
+              className="px-4 py-2 hover:bg-gray-700 cursor-pointer whitespace-nowrap">
+              {t.label}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
 
-export default Scenario
+export default Selection

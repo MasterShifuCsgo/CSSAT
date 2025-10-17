@@ -18,8 +18,7 @@ export const mockTasks = {
       containers: ["Network Attacks", "Social Engineering", "Malware"],
     },
     scenario: {
-      data: {
-        prompt: "You are a network administrator working late at night.",
+      data: {      
         description:
           "Suddenly, you receive an urgent email from your company’s CEO asking you to verify your login credentials to 'avoid account suspension.' The email looks official, with the company logo and signature.",
         blocks: ["Open the link", "Report the email", "Ignore it"],

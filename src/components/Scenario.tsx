@@ -1,84 +1,91 @@
-import React, { useEffect, useState } from "react";
-import type { ScenarioData } from "@/types";
+import React, { useState } from 'react'
+import type { ScenarioData } from '@/types'
 
 interface ScenarioProps {
-  /** Optional: initial scenario ID or data */
-  initialData?: ScenarioData;
-  /** Fetch function to load new scenario steps */
-  fetchScenario?: (id?: string) => Promise<ScenarioData>;
-  /** Optional callback when user selects an answer */
-  onSelect?: (choice: string, nextId?: string) => void;
+  initialData?: ScenarioData
+  onSelect?: (choice: string) => void
+  onSubmit?: (choice: string) => void // ✅ new optional callback
 }
 
-const Scenario: React.FC<ScenarioProps> = ({ initialData, onSelect }) => {
-  const [data, setData] = useState<ScenarioData | null>(initialData || null);
-  const [loading, setLoading] = useState(false);
+const Scenario: React.FC<ScenarioProps> = ({ initialData, onSelect, onSubmit }) => {
+  const [data] = useState<ScenarioData | null>(initialData || null)
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
 
-  async function fetchScenario(){
-    //fetch the scenario details here.
+  const handleSelect = (choice: string) => {
+    setSelectedChoice(choice)
+    setSubmitted(false)
+    onSelect?.(choice)
   }
 
-  // Load scenario data if not given or when it evolves
-  useEffect(() => {
-    if (!data && fetchScenario) {
-      setLoading(true);
-      fetchScenario().then((d) => {
-        setData(d);
-        setLoading(false);
-      });
+  const handleSubmit = () => {
+    if (selectedChoice) {
+      setSubmitted(true)
+      onSubmit?.(selectedChoice)
+      console.log('Submitted:', selectedChoice)
     }
-  }, [data, fetchScenario]);
+  }
 
-  const handleSelect = async (choice: string) => {
-    // optional next-step logic
-    const nextId = data?.next?.[choice];
-    onSelect?.(choice, nextId);
-
-    if (fetchScenario && nextId) {
-      setLoading(true);
-      const next = await fetchScenario(nextId);
-      setData(next);
-      setLoading(false);
-    }
-  };
-
-  if (loading || !data)
+  if (!data) {
     return (
       <div className="flex items-center justify-center w-full py-10 text-gray-400">
-        Loading scenario...
+        No scenario data provided.
       </div>
-    );
+    )
+  }
 
   return (
     <div className="flex flex-col items-center text-center w-full px-2 sm:px-4">
-      {/* Scenario prompt / question */}
+      {/* Scenario description */}
       <h3 className="text-base sm:text-lg font-medium text-white mb-4 leading-relaxed">
-        {data.prompt}
+        {data.description}
       </h3>
 
-      {/* Scenario container (the "rectangle") */}
-      <div className="w-full max-w-xl bg-gray-800 rounded-xl shadow-lg p-6 mb-4 border border-gray-700">
-        <p className="text-sm sm:text-base text-gray-300 whitespace-pre-line">
-          {data.description}
-        </p>
+      {/* Rectangle box */}
+      <div className="w-full max-w-xl bg-gray-800 rounded-xl shadow-lg p-6 mb-4 border border-gray-700 min-h-[100px] flex items-center justify-center">
+        {selectedChoice ? (
+          <p className="text-white text-lg">{selectedChoice}</p>
+        ) : (
+          <p className="text-gray-500 text-sm italic">Select an option below...</p>
+        )}
       </div>
 
-      {/* Answer choices */}
-      <div className="flex flex-wrap justify-center gap-3 w-full">
-        {data.choices.map((choice) => (
+      {/* Answer buttons */}
+      <div className="flex flex-wrap justify-center gap-3 w-full mb-6">
+        {data.blocks.map((block) => (
           <button
-            key={choice}
-            onClick={() => handleSelect(choice)}
-            className="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-blue-600 active:bg-blue-700 
-                       text-white rounded-lg transition-all text-sm sm:text-base font-medium 
-                       focus:outline-none focus:ring-2 focus:ring-blue-400 hover:scale-[1.03]"
-          >
-            {choice}
+            key={block}
+            onClick={() => handleSelect(block)}
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-lg text-sm sm:text-base font-medium transition-all focus:outline-none focus:ring-2 ${
+              selectedChoice === block
+                ? 'bg-blue-600 text-white scale-[1.05]'
+                : 'bg-gray-700 hover:bg-blue-600 text-white'
+            }`}>
+            {block}
           </button>
         ))}
       </div>
-    </div>
-  );
-};
 
-export default Scenario;
+      {/* ✅ Submit button */}
+      {selectedChoice && (
+        <button
+          onClick={handleSubmit}
+          className={`inline-flex items-center justify-center
+              px-6 py-3 font-medium rounded-lg
+              text-center leading-none
+              transition-all select-none
+              ${
+                submitted
+                  ? 'bg-green-600 text-white cursor-default'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+          style={{ lineHeight: 1 }}
+          disabled={submitted}>
+          {submitted ? 'Submitted' : 'Submit'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+export default Scenario

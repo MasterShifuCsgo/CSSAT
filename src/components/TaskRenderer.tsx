@@ -46,13 +46,11 @@ const TaskRenderer: React.FC = () => {
       );
       break;
     case "scenario":
-      taskContent = (
-        <>
+      taskContent = (        
         <Scenario
           initialData={task.data}
           onSelect={(choice) => console.log("Choice selected:", choice)}
-        />
-        </>
+        />        
       );
       break;
 
