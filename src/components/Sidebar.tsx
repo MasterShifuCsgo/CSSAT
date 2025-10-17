@@ -2,7 +2,7 @@ import {NavLink} from "react-router-dom";
 import {BiBarChartAlt2, BiBookOpen, BiCog, BiStar} from "react-icons/bi";
 import {FaBarcode} from "react-icons/fa";
 
-export const Sidebar = () => {
+const Sidebar = () => {
     return (
         <div>
             <div
@@ -153,3 +153,5 @@ export const Sidebar = () => {
         </div>
     );
 };
+
+export default Sidebar;
