@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+    /*--color-bottom-nav-button: hsl(0, 1%, 51%);*/
+}
+
+body {
+    background-color: black;
+}
