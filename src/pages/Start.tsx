@@ -1,6 +1,5 @@
 import {Sidebar} from "@/components/Sidebar.tsx";
 
-
 const Start = () => {
     return (
         <div>
