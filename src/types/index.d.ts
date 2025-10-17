@@ -17,8 +17,16 @@ export interface DragAndDropProps {
   onDrop?: (container: string, item: string) => void;
 }
 
-export interface ChatMessage {
-  side: "left" | "right";
-  content: string | JSX.Element;
+
+// src/types/index.ts (or wherever your shared types live)
+
+export interface ScenarioData {
+  /** Short prompt shown above the rectangle */
+  description: string;
+
+  /** List of possible actions or answer blocks displayed below */
+  blocks: string[];
 }
+
+
 

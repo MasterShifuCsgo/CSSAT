@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { DragAndDropProps } from "@/types";
 
-const ChatDragAndDrop: React.FC<DragAndDropProps> = ({
+const DragAndDrop: React.FC<DragAndDropProps> = ({
   items,
   containers,
   onDrop,
@@ -10,7 +10,7 @@ const ChatDragAndDrop: React.FC<DragAndDropProps> = ({
   const [availableItems, setAvailableItems] = useState<string[]>(items);
   const [activeItem, setActiveItem] = useState<string | null>(null);
 
-  // --- Drop logic (common) ---
+  // --- Drop logic ---
   const handleDrop = (container: string, item: string) => {
     if (assignments[container]?.includes(item)) return;
     setAssignments((prev) => ({
@@ -29,7 +29,7 @@ const ChatDragAndDrop: React.FC<DragAndDropProps> = ({
     setAvailableItems((prev) => [...prev, item]);
   };
 
-  // --- Desktop drag logic ---
+  // --- Drag logic (desktop) ---
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, item: string) => {
     e.dataTransfer.setData("item", item);
     setActiveItem(item);
@@ -41,7 +41,7 @@ const ChatDragAndDrop: React.FC<DragAndDropProps> = ({
     setActiveItem(null);
   };
 
-  // --- Touch drag logic (mobile fallback) ---
+  // --- Touch drag (mobile fallback) ---
   const onTouchStart = (item: string) => setActiveItem(item);
   const onTouchEnd = (container: string | null) => {
     if (container && activeItem) handleDrop(container, activeItem);
@@ -49,45 +49,54 @@ const ChatDragAndDrop: React.FC<DragAndDropProps> = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 justify-center items-start w-full text-white select-none">
-      {/* Left: available items */}
-      <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-6 w-full text-white select-none p-4">
+      {/* --- Items section --- */}
+      <div className="flex flex-col gap-2 w-full">
         <h4 className="font-semibold mb-2 text-white">Items</h4>
         {availableItems.length === 0 ? (
           <p className="text-gray-400 text-sm italic">All items placed</p>
         ) : (
-          availableItems.map((item) => (
-            <div
-              key={item}
-              draggable
-              onDragStart={(e) => onDragStart(e, item)}
-              onTouchStart={() => onTouchStart(item)}
-              className={`p-2 bg-gray-700 rounded text-center cursor-move hover:bg-gray-600 transition-colors ${
-                activeItem === item ? "opacity-50" : ""
-              }`}
-            >
-              {item}
-            </div>
-          ))
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+            {availableItems.map((item) => (
+              <div
+                key={item}
+                draggable
+                onDragStart={(e) => onDragStart(e, item)}
+                onTouchStart={() => onTouchStart(item)}
+                className={`p-2 bg-gray-700 rounded text-center cursor-move hover:bg-gray-600 transition-colors min-w-[120px] ${
+                  activeItem === item ? "opacity-50" : ""
+                }`}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Right: containers */}
-      <div className="flex flex-wrap gap-4 justify-center">
+      {/* --- Containers grid --- */}
+      <div
+        className="
+          grid 
+          grid-cols-1
+          sm:grid-cols-2 
+          lg:grid-cols-3
+          gap-4
+          w-full
+          justify-items-center
+        "
+      >
         {containers.map((container) => (
           <div
             key={container}
             onDragOver={onDragOver}
             onDrop={(e) => onDropHandler(e, container)}
             onTouchEnd={() => onTouchEnd(container)}
-            className={`w-48 min-h-28 border-2 border-dashed rounded p-2 text-center transition-all ${
-              activeItem
-                ? "border-blue-500"
-                : "border-gray-500"
+            className={`w-full sm:w-[90%] lg:w-[80%] min-h-28 border-2 border-dashed rounded p-3 text-center transition-all bg-gray-800 ${
+              activeItem ? "border-blue-500" : "border-gray-500"
             }`}
           >
             <p className="font-medium text-blue-300 mb-2">{container}</p>
-
             <ul className="text-sm space-y-1">
               {(assignments[container] || []).map((i) => (
                 <li
@@ -112,4 +121,4 @@ const ChatDragAndDrop: React.FC<DragAndDropProps> = ({
   );
 };
 
-export default ChatDragAndDrop;
+export default DragAndDrop;

@@ -1,48 +1,76 @@
-import {NavLink} from "react-router-dom";
-import networking_img from "@/assets/Networking.jpg";
-import software_img from "@/assets/Software.jpg";
-import cyber_security_img from "@/assets/Cyber_security.jpg";
+// src/components/Scenario.tsx
+import React, { useState } from 'react'
+import type { ScenarioData } from '@/types'
 
-const Selection = () => {
-    return (
-        <div className=" min-h-screen">
-            <div className="flex justify-center w-full py-5">
-                <h1 className="text-5xl font-bold text-white">Select one of the options</h1>
-            </div>
+interface ScenarioProps {  
+  initialData: ScenarioData
+}
 
-            <div className="flex flex-col lg:flex-row justify-center items-center gap-4 px-4 py-5">
-                <NavLink
-                    to="/start"
-                    className="w-full lg:flex-1 relative flex justify-center items-center text-center text-2xl font-bold rounded-lg border border-transparent text-white hover:bg-opacity-90 focus:outline-none disabled:opacity-50 disabled:pointer-events-none min-h-[25vh] lg:min-h-[70vh] overflow-hidden"
-                    style={{ backgroundImage: `url(${networking_img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                >
-                            <span className="relative z-10 bg-black/70 px-4 py-2 rounded max-w-[70%]">
-                                Network security
-                            </span>
-                </NavLink>
+const Scenario: React.FC<ScenarioProps> = ({ initialData }) => {
+  const [currentScenario] = useState<ScenarioData>(initialData)
 
-                <NavLink
-                    to="/start"
-                    className="w-full lg:flex-1 relative flex justify-center items-center text-center text-2xl font-bold rounded-lg border border-transparent text-white hover:bg-opacity-90 focus:outline-none disabled:opacity-50 disabled:pointer-events-none min-h-[25vh] lg:min-h-[70vh] overflow-hidden"
-                    style={{ backgroundImage: `url(${software_img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                >
-                            <span className="relative z-10 bg-black/70 px-4 py-2 rounded max-w-[70%]">
-                                Secure software development
-                            </span>
-                </NavLink>
+  async function fetchScenario(
+    currentScenario: ScenarioData,
+    selectedBlock: string,
+  ): Promise<ScenarioData> {    
+    // Example structure only — do not uncomment until backend exists.
+    const response = await fetch(`${import.meta.env.VITE_BASE_API_URL}/scenario/next`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        scenario: currentScenario,
+        choice: selectedBlock,
+      }),
+    })
 
-                <NavLink
-                    to="/start"
-                    className="w-full lg:flex-1 relative flex justify-center items-center text-center text-2xl font-bold rounded-lg border border-transparent text-white hover:bg-opacity-90 focus:outline-none disabled:opacity-50 disabled:pointer-events-none min-h-[25vh] lg:min-h-[70vh] overflow-hidden"
-                    style={{ backgroundImage: `url(${cyber_security_img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                >
-                            <span className="relative z-10 bg-black/70 px-4 py-2 rounded max-w-[70%]">
-                                Cyber hygiene
-                            </span>
-                </NavLink>
-            </div>
-        </div>
-    );
-};
+    if (!response.ok) {
+      throw new Error('Failed to fetch next scenario')
+    }
 
-export default Selection;
+    const data: ScenarioData = await response.json()
+    return data
+
+    // Temporary placeholder
+    console.log('fetchScenario called with:', currentScenario, selectedBlock)
+    throw new Error('fetchScenario: baseAPI not yet defined')
+  }
+
+  const handleSelect = (choice: string) => {
+    console.log('Selected block:', choice)
+    console.log('Current scenario:', currentScenario)
+  }
+
+  return (
+    <div className="flex flex-col items-center text-center w-full px-2 sm:px-4">
+      {/* Description (text above the rectangle) */}
+      <h3 className="text-base sm:text-lg font-medium text-white mb-4 leading-relaxed max-w-2xl">
+        {currentScenario.description}
+      </h3>
+
+      {/* Rectangle container */}
+      <div className="w-full max-w-xl bg-gray-800 rounded-xl shadow-lg p-6 mb-4 border border-gray-700">
+        <p className="text-sm sm:text-base text-gray-300 whitespace-pre-line">
+          {/* Placeholder for future dynamic content */}
+        </p>
+      </div>
+
+      {/* Blocks (answer buttons) */}
+      <div className="flex flex-wrap justify-center gap-3 w-full">
+        {currentScenario.blocks.map((block) => (
+          <button
+            key={block}
+            onClick={() => handleSelect(block)}
+            className="w-full sm:w-auto px-5 py-2.5 bg-gray-700 hover:bg-blue-600 active:bg-blue-700 
+                       text-white rounded-lg transition-all text-sm sm:text-base font-medium 
+                       focus:outline-none focus:ring-2 focus:ring-blue-400 hover:scale-[1.03]">
+            {block}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default Scenario

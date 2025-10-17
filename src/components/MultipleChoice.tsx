@@ -1,7 +1,7 @@
 import type { MultipleChoiceProps } from "@/types";
 import React from "react";
 
-const ChatMultipleChoice: React.FC<MultipleChoiceProps> = ({ data, onSelect }) => {
+const MultipleChoice: React.FC<MultipleChoiceProps> = ({ data, onSelect }) => {
   return (
     <div className="flex flex-col items-center text-center w-full px-2 sm:px-4">
       {/* Question / prompt */}
@@ -27,4 +27,4 @@ const ChatMultipleChoice: React.FC<MultipleChoiceProps> = ({ data, onSelect }) =
   );
 };
 
-export default ChatMultipleChoice;
+export default MultipleChoice;
