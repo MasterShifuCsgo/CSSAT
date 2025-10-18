@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-9e2w6)#r%6en=n8=a-hwyq$b1)ljp@oe%f#6uo9io9rv(zs1b0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 # Application definition
 
@@ -93,7 +93,7 @@ REST_FRAMEWORK = {
 }
 
 REST_KNOX = {
-    'USER_SERIALIZER': 'api.serializers.UserSerializer',
+    'USER_SERIALIZER': 'CSSASite.serializers.UserSerializer',
     'TOKEN_TTL': timedelta(hours=48),
     'AUTH_HEADER_PREFIX': 'Bearer'
 }

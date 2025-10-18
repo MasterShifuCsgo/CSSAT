@@ -43,6 +43,11 @@ class TaskDropOptionSerializer(serializers.ModelSerializer):
         model = TaskDropOption
         fields = '__all__'
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteUser
+        fields = ('id', 'email')
+
 #-----------------User Serialization-----------------------#
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
