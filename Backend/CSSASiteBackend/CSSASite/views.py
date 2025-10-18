@@ -84,7 +84,7 @@ class GetTaskAPI(RetrieveAPIView):
             ).exclude(id__in=user_task_completion)
         
         max = len(possible_tasks)
-        if max == 0:
+        if max == 1:
             task = possible_tasks[0]
         else:
             task_index = randint(0, max-1)
