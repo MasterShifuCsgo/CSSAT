@@ -35,12 +35,11 @@ const TaskRenderer: React.FC = () => {
   useEffect(() => {
     const start = async () => {
       try {        
-        const res: Task = await api('/task/?knowledge_domain_id=<id>', {})
+        const res: Task = await api('/task/?knowledge_domain_id=1')
         console.log('✅ API result:', res)
         setTask(res)
       } catch (err) {
         console.warn('⚠️ API failed, using mock data instead:', err)
-
 
         if (domain && taskType && mockTasks[domain]?.[taskType]) {
           const mock = mockTasks[domain][taskType]
