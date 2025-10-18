@@ -68,12 +68,20 @@ class GetTaskAPI(RetrieveAPIView):
         user = SiteUser.objects.get(id=1)
 
         knowledge_domain_id = request.GET.get('knowledge_domain_id','-1')
+        task_type_selected = request.GET.get('task-type', '-1')
         logger.debug(knowledge_domain_id)
         if int(knowledge_domain_id) < 0:
             Response([], status=status.HTTP_404_NOT_FOUND)
+        if int(task_type_selected) < 0:
+            Response([], status=status.HTTP_404_NOT_FOUND)
         
         user_task_completion = TaskCompletion.objects.filter(user=user)
-        possible_tasks = Task.objects.filter(difficulty__lte=user.skill_rating, difficulty__gte=user.skill_rating-skill_margin, knowledge_domain=knowledge_domain_id).exclude(id__in=user_task_completion)
+        possible_tasks = Task.objects.filter(
+            difficulty__lte=user.skill_rating, 
+            difficulty__gte=user.skill_rating-skill_margin, 
+            knowledge_domain=knowledge_domain_id,
+            task_type=task_type_selected
+            ).exclude(id__in=user_task_completion)
         
         max = len(possible_tasks)
         task_index = randint(0, max-1)
