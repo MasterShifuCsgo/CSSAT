@@ -5,11 +5,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import login
 from rest_framework.decorators import api_view
+from knox import views as knox_views
+
 import json
 from random import randint
 
 from .models import SiteUser, KnowledgeDomain, UserManager, Task, TaskOption, TaskCompletion, ScenarioTable, Badge, UnlockEntry, TaskDropFieldOption, TaskDropOption, TaskDropEvaluation
-from .serializers import BadgeSerializer, TaskSerializer, TaskOptionSerializer, TaskCompletionSerializer, KnowledgeDomainSerializer, UnlockEntrySerializer, CreateUserSerializer, UpdateUserSerializer
+from .serializers import BadgeSerializer, TaskSerializer, TaskOptionSerializer, TaskCompletionSerializer, KnowledgeDomainSerializer, UnlockEntrySerializer, CreateUserSerializer, UpdateUserSerializer, LoginSerializer
 
 import logging
 
@@ -126,3 +128,18 @@ class UpdateUserAPI(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = SiteUser.objects.all()
     serializer_class = UpdateUserSerializer
+
+class LoginAPIView(knox_views.LoginView):
+    permission_classes = (AllowAny, )
+    serializer_class = LoginSerializer
+
+    def post(self, request, format=None):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data['user']
+            login(request, user)
+            response = super().post(request, format=None)
+        else:
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(response.data, status=status.HTTP_200_OK)
