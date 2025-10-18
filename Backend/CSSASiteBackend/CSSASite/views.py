@@ -18,7 +18,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-skill_margin = 3
+skill_margin = 30
 
 class GetTasksAPI(RetrieveAPIView):
     permission_classes = (AllowAny, )
@@ -84,10 +84,13 @@ class GetTaskAPI(RetrieveAPIView):
             ).exclude(id__in=user_task_completion)
         
         max = len(possible_tasks)
-        task_index = randint(0, max-1)
+        if max == 0:
+            task = possible_tasks[0]
+        else:
+            task_index = randint(0, max-1)
+            task = possible_tasks[task_index]
 
-        task = possible_tasks[task_index]
-
+        
         task_json = {}
 
         task_json["id"] = task.id
@@ -127,6 +130,46 @@ class GetKnowledgeDomainsAPI(RetrieveAPIView):
         knowledge_domains = KnowledgeDomain.objects.all()
         knowledge_domain_serializer = KnowledgeDomainSerializer(knowledge_domains, many=True)
         return Response(knowledge_domain_serializer.data, status=status.HTTP_200_OK)
+    
+class CreateTaskCompletionAPI(CreateAPIView):
+    permission_classes = (AllowAny, )
+
+    def post(self, request, format=None):
+        data = request.data
+        dict = data.dict()
+
+        #userid = f'{request.user.id}'
+        userid = 1
+        dict['user'] = userid
+
+        logger.debug(dict)
+        task_id = dict["task"]
+
+        task = Task.objects.get(id=task_id)
+
+        task_answers = dict["answers"]
+
+        overall_correctness_score = 0
+        match task.task_type:
+            case 0:
+                # multiple choice question
+                for answer in task_answers:
+                    answer_correctness = answer["correctness"]
+                    overall_correctness_score += answer_correctness
+            case 1:
+                # drag and drop choice answer handling 
+                field_id = answer["field"]
+                drop_option_id = answer["drop_option"]
+                evaluation = TaskDropEvaluation.objects.get(drop_field=field_id, drop_option=drop_option_id)
+                overall_correctness_score += evaluation.correctness
+            case 2:
+                pass
+
+        time_taken = dict["response_time"]
+
+
+        #return Response([], status=status.HTTP_201_CREATED)
+        return Response([], status=status.HTTP_400_BAD_REQUEST)
 
 #--------------- User API -----------------------
 class CreateUserAPI(CreateAPIView):
