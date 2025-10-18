@@ -94,13 +94,14 @@ class GetTaskAPI(RetrieveAPIView):
         task_json["containerType"] = task.task_types[task.task_type]
         
         task_data = {}
-        task_data["description"] = task.task_text
         match task.task_type:
             case 0:
+                task_data["title"] = task.task_text
                 valid_options = TaskOption.objects.filter(task=task)
                 option_serializer = TaskOptionSerializer(valid_options, many=True)
                 task_data["options"] = option_serializer.data
             case 1:
+                task_data["description"] = task.task_text
                 valid_drop_options = TaskDropOption.objects.filter(task=task)
                 valid_drop_fields = TaskDropFieldOption.objects.filter(task=task)
                 drop_option_serializer = TaskOptionSerializer(valid_drop_options, many=True)
@@ -108,6 +109,7 @@ class GetTaskAPI(RetrieveAPIView):
                 task_data["items"] = drop_option_serializer.data
                 task_data["containers"] = drop_field_serializer.data
             case 2:
+                task_data["description"] = task.task_text
                 valid_options = TaskOption.objects.filter(task=task)
                 option_serializer = TaskOptionSerializer(valid_options, many=True)
                 task_data["blocks"] = option_serializer.data   
