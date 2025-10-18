@@ -10,13 +10,20 @@ export async function api<T>(
 ): Promise<T> {
   const url = `${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
-  const response = await fetch(url, {
+  // 💡 FIX: Create a final options object by merging defaults and user-provided options.
+  const finalOptions: RequestInit = {
+    // 1. Start with user-provided options (allows method/body to be set)
+    ...options, 
+    // 2. Set default Content-Type header (but merge with existing options.headers)
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers || {}),
+      ...(options.headers || {}), // 👈 Ensure user-defined headers override/merge
     },
-    ...options,
-  });
+    // 3. IMPORTANT: Ensure default method is set if not provided, e.g., 'GET'
+    // You typically rely on the caller to provide 'POST', 'PUT', etc.
+  };
+
+  const response = await fetch(url, finalOptions);
 
   if (!response.ok) {
     const errorText = await response.text();

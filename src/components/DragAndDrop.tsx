@@ -1,11 +1,13 @@
 // src/components/DragAndDrop.tsx
 import React, { useState } from "react";
+// Assuming DragAndDropProps now includes onSubmit: (assignments: Record<string, string[]>) => void
 import type { DragAndDropProps } from "@/types";
 
 const DragAndDrop: React.FC<DragAndDropProps> = ({
   items,
   containers,
   onDrop,
+  onSubmit,
 }) => {
   const [assignments, setAssignments] = useState<Record<string, string[]>>({});
   const [availableItems, setAvailableItems] = useState<string[]>([...items]);
@@ -13,6 +15,8 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
 
   // --- Drop logic ---
   const handleDrop = (container: string, item: string) => {
+    // Current logic: allows one item to be dropped into one container, 
+    // and multiple items can go into the same container.
     if (assignments[container]?.includes(item)) return;
 
     setAssignments((prev) => ({
@@ -49,6 +53,17 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
   const onTouchEnd = (container: string | null) => {
     if (container && activeItem) handleDrop(container, activeItem);
     setActiveItem(null);
+  };
+
+  // 👈🏼 ADDED: Submission handler
+  const handleSubmit = () => {
+    // Only submit if all available items are placed (optional check)
+    if (availableItems.length === 0) {
+      onSubmit?.(assignments);
+    } else {
+      // You can replace this alert with a more user-friendly UI feedback
+      alert(`Please place all ${availableItems.length} remaining items.`);
+    }
   };
 
   return (
@@ -119,6 +134,21 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
             </ul>
           </div>
         ))}
+      </div>
+      
+      {/* 👈🏼 ADDED: Submission Button */}
+      <div className="w-full flex justify-center mt-4">
+        <button
+          onClick={handleSubmit}
+          disabled={availableItems.length > 0} // Optional: Disable until all items are placed
+          className={`px-8 py-3 rounded text-lg font-bold transition-colors ${
+            availableItems.length === 0
+              ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
+              : 'bg-gray-600 cursor-not-allowed opacity-50'
+          }`}
+        >
+          Submit Assignment
+        </button>
       </div>
     </div>
   );

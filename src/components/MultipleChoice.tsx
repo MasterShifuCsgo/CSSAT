@@ -1,5 +1,5 @@
-import type { MultipleChoiceProps } from "@/types";
-import React from "react";
+import React from "react"
+import type { MultipleChoiceProps } from "@/types"
 
 const MultipleChoice: React.FC<MultipleChoiceProps> = ({ data, onSelect }) => {
   return (
@@ -13,18 +13,18 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({ data, onSelect }) => {
       <div className="flex flex-wrap justify-center gap-2 w-full">
         {data.options.map((opt) => (
           <button
-            key={opt}
+            key={opt.id}
             onClick={() => onSelect?.(opt)}
             className="w-full sm:w-auto px-4 py-2 bg-gray-700 hover:bg-blue-600 active:bg-blue-700 
                        text-white rounded-lg transition-colors text-sm sm:text-base font-medium 
                        focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {opt}
+            {opt.option}
           </button>
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MultipleChoice;
+export default MultipleChoice
