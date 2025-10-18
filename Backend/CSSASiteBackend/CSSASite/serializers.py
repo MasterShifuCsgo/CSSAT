@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SiteUser, Task, TaskCompletion, TaskOption, KnowledgeDomain, Badge, UnlockEntry
+from .models import SiteUser, Task, TaskCompletion, TaskOption, KnowledgeDomain, Badge, UnlockEntry, TaskDropFieldOption, TaskDropOption
 from django.contrib.auth import authenticate
 
 #-------------------Site data serialization----------------#
@@ -31,6 +31,16 @@ class KnowledgeDomainSerializer(serializers.ModelSerializer):
 class UnlockEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = UnlockEntry
+        fields = '__all__'
+
+class TaskDropFieldOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskDropFieldOption
+        fields = '__all__'
+
+class TaskDropOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskDropOption
         fields = '__all__'
 
 #-----------------User Serialization-----------------------#
