@@ -1,74 +1,57 @@
 # 3AS
 Trijų angelų studijos internetinis puslapis
 
+# Demo installation instructions
+This react project requires 'npm' and 'Node.js'
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# React + TypeScript + Vite
+Node.js can be downloaded from the [Node.Js](https://nodejs.org/en/download) website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+To download the latest version of npm, on the command line, run the following command: npm install -g npm
 
-Currently, two official plugins are available:
+To run this demo you must first clone it and install its' dependencies on the command line
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Navigate to the directory of the demo with: cd /demo/directory
 
-## Expanding the ESLint configuration
+Then install dependencies with: npm install
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Once it is finished, you can run the demo with: npm run dev
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Then simply enter 'localhost:5173' in your browser of choice
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+# Peer Dependencies
+@radix-ui/react-navigation-menu: ^1.2.13
+@tailwindcss/vite: ^4.1.11
+class-variance-authority: ^0.7.1
+clsx: ^2.1.1
+jquery: ^3.7.1
+lodash: ^4.17.21
+lucide-react: ^0.535.0
+motion: ^12.23.12
+next: ^15.4.5
+nouislider: ^15.8.1
+plyr: ^3.7.8
+preline: ^3.2.3
+react: ^19.1.0
+react-dom: ^19.1.0
+react-icons: ^5.5.0
+react-router-dom: ^7.7.1
+tailwind-merge: ^3.3.1
+tailwindcss: ^4.1.11
+vanilla-calendar-pro: ^3.0.5
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Peer Dependencies
+@eslint/js: ^9.30.1
+@types/jquery: ^3.5.33
+@types/lodash: ^4.17.20
+@types/node: ^24.1.0
+@types/react: ^19.2.2
+@types/react-dom: ^19.1.6
+@vitejs/plugin-react-swc: ^3.10.2
+eslint: ^9.30.1
+eslint-plugin-react-hooks: ^5.2.0
+eslint-plugin-react-refresh: ^0.4.20
+globals: ^16.3.0
+tw-animate-css: ^1.3.6
+typescript: ~5.8.3
+typescript-eslint: ^8.35.1
+vite: ^7.0.4
