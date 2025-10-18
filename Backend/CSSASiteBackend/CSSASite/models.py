@@ -41,7 +41,7 @@ class SiteUser(AbstractBaseUser):
     objects = UserManager()
 
     def __str__(self):
-        return self.email
+        return f'{self.id} {self.email}'
 
     def has_module_perms(self, app_label):
         return True
