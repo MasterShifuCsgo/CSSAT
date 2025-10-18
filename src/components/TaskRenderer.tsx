@@ -1,19 +1,15 @@
-// src/pages/TaskRenderer.tsx
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import MultipleChoice from '@/components/MultipleChoice'
 import DragAndDrop from '@/components/DragAndDrop'
 import Scenario from '@/components/Scenario.tsx'
-import { mockTasks } from '@/data/mockTasks'
 import { api } from '@/helpers/api'
 
+// --- Type definitions ---
 type Task =
   | {
       containerType: 'multipleChoice'
-      data: {
-        title: string
-        options: string[]
-      }
+      data: { title: string; options: string[] }
     }
   | {
       containerType: 'dragAndDrop'
@@ -22,76 +18,118 @@ type Task =
     }
   | {
       containerType: 'scenario'
-      data: {
-        description: string
-        blocks: string[]
-      }
+      data: { description: string; blocks: string[] }
     }
+
+// --- Map textual route names → backend numeric codes ---
+const taskTypeMapping: Record<string, number> = {
+  multiple_choice: 0,
+  multipleChoice: 0,
+  drag_and_drop: 1,
+  dragAndDrop: 1,
+  scenario: 2,
+}
 
 const TaskRenderer: React.FC = () => {
   const { domain, taskType } = useParams<{ domain: string; taskType: string }>()
   const [task, setTask] = useState<Task | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const start = async () => {
-      try {        
-        const res: Task = await api('/task/?knowledge_domain_id=1')
+    const fetchTask = async () => {
+      try {
+        const typeNumber = taskTypeMapping[taskType || ''] ?? 0
+        console.log(`🔍 Fetching task type ${typeNumber} (${taskType})`)
+
+        const res = await api(`/task/?knowledge_domain_id=1&taskType=${typeNumber}`)
         console.log('✅ API result:', res)
-        setTask(res)
-      } catch (err) {
-        console.warn('⚠️ API failed, using mock data instead:', err)
 
-        if (domain && taskType && mockTasks[domain]?.[taskType]) {
-          const mock = mockTasks[domain][taskType]
+        // --- Helper to normalize arrays ---
+        const normalizeList = (arr: any[]) =>
+          Array.isArray(arr)
+            ? arr.map((el) =>
+                typeof el === 'object' && el.option ? el.option : String(el)
+              )
+            : []
 
-          let formattedTask: Task
-          if (taskType === 'multiple_choice') {
-            formattedTask = {
-              containerType: 'multipleChoice',
-              data: mock.data,
-            }
-          } else if (taskType === 'drag_and_drop') {
-            formattedTask = {
+        // --- Normalize response into frontend shape ---
+        let formatted: Task | null = null
+
+        switch (res.containerType) {
+          case 'dragAndDrop':
+          case 'drag_and_drop':
+            formatted = {
               containerType: 'dragAndDrop',
-              items: mock.data.items,
-              containers: mock.data.containers,
+              items: normalizeList(res.data.items),
+              containers: normalizeList(res.data.containers),
             }
-          } else if (taskType === 'scenario') {
-            formattedTask = {
-              containerType: 'scenario',
-              data: mock.data,
-            }
-          } else {
-            throw new Error(`Unsupported mock type: ${taskType}`)
-          }
+            break
 
-          console.log('🧩 Using mock task:', formattedTask)
-          setTask(formattedTask)
-        } else {
-          console.error('❌ No mock task found for', domain, taskType)
+          case 'multipleChoice':
+          case 'multiple_choice':
+            formatted = {
+              containerType: 'multipleChoice',
+              data: {
+                title: res.data.title ?? 'Untitled Question',
+                options: normalizeList(res.data.options),
+              },
+            }
+            break
+
+          case 'scenario':
+            formatted = {
+              containerType: 'scenario',
+              data: {
+                description: res.data.description ?? 'No description provided.',
+                blocks: normalizeList(res.data.blocks),
+              },
+            }
+            break
+
+          default:
+            console.warn('⚠️ Unknown containerType:', res.containerType)
+            setError('Unknown task type received from server.')
+            return
         }
+
+        setTask(formatted)
+      } catch (err) {
+        console.error('❌ Failed to fetch task:', err)
+        setError('Failed to load task from the server.')
       }
     }
 
-    start()
+    fetchTask()
   }, [domain, taskType])
 
-  // --- UI states ---
+  // --- Loading / Error states ---
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen text-white bg-black">
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   if (!task) {
     return (
       <div className="flex items-center justify-center h-screen text-white bg-black">
         <p>
-          Loading task for {domain} - {taskType}...
+          Loading task for {domain} – {taskType}...
         </p>
       </div>
     )
   }
 
-  // --- Task rendering switch ---
+  // --- Shared styling ---
+  const containerClass =
+    'p-6 bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center'
+
+  // --- Render correct component ---
   switch (task.containerType) {
     case 'multipleChoice':
       return (
-        <div className="p-6 bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+        <div className={containerClass}>
           <MultipleChoice
             data={task.data}
             onSelect={(opt) => console.log('Selected:', opt)}
@@ -101,12 +139,12 @@ const TaskRenderer: React.FC = () => {
 
     case 'dragAndDrop':
       return (
-        <div className="p-6 bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+        <div className={containerClass}>
           <DragAndDrop
             items={task.items}
             containers={task.containers}
             onDrop={(container, item) =>
-              console.log(`Item ${item} dropped into ${container}`)
+              console.log(`Item ${item} → ${container}`)
             }
           />
         </div>
@@ -114,7 +152,7 @@ const TaskRenderer: React.FC = () => {
 
     case 'scenario':
       return (
-        <div className="p-6 bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+        <div className={containerClass}>
           <Scenario
             initialData={task.data}
             onSelect={(choice) => console.log('Choice selected:', choice)}
