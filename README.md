@@ -19,10 +19,10 @@ Once it is finished, you can run the demo with: npm run dev
 Then simply enter 'localhost:5173' in your browser of choice
 
 # Peer Dependencies
-@radix-ui/react-navigation-menu: ^1.2.13
-@tailwindcss/vite: ^4.1.11
-class-variance-authority: ^0.7.1
-clsx: ^2.1.1
+@radix-ui/react-navigation-menu: ^1.2.13__
+@tailwindcss/vite: ^4.1.11__
+class-variance-authority: ^0.7.1__
+clsx: ^2.1.1__
 jquery: ^3.7.1
 lodash: ^4.17.21
 lucide-react: ^0.535.0
@@ -39,7 +39,7 @@ tailwind-merge: ^3.3.1
 tailwindcss: ^4.1.11
 vanilla-calendar-pro: ^3.0.5
 
-# Peer Dependencies
+# Dev Dependencies
 @eslint/js: ^9.30.1
 @types/jquery: ^3.5.33
 @types/lodash: ^4.17.20
