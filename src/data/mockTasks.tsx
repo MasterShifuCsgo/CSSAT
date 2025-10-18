@@ -14,8 +14,10 @@ export const mockTasks = {
       },
     },
     drag_and_drop: {
+      data:{
       items: ["Phishing", "DDoS", "Malware", "SQL Injection"],
       containers: ["Network Attacks", "Social Engineering", "Malware"],
+      }
     },
     scenario: {
       data: {      

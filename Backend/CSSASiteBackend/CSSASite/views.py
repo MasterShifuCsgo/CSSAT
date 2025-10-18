@@ -59,7 +59,7 @@ class GetTasksAPI(RetrieveAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 class GetTaskAPI(RetrieveAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (AllowAny, )
     queryset = Task.objects.none()
 
     def get(self, request, format=None):     

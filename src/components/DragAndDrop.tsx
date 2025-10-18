@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/components/DragAndDrop.tsx
+import React, { useState } from "react";
 import type { DragAndDropProps } from "@/types";
 
 const DragAndDrop: React.FC<DragAndDropProps> = ({
@@ -7,16 +8,18 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
   onDrop,
 }) => {
   const [assignments, setAssignments] = useState<Record<string, string[]>>({});
-  const [availableItems, setAvailableItems] = useState<string[]>(items);
+  const [availableItems, setAvailableItems] = useState<string[]>([...items]);
   const [activeItem, setActiveItem] = useState<string | null>(null);
 
   // --- Drop logic ---
   const handleDrop = (container: string, item: string) => {
     if (assignments[container]?.includes(item)) return;
+
     setAssignments((prev) => ({
       ...prev,
       [container]: [...(prev[container] || []), item],
     }));
+
     setAvailableItems((prev) => prev.filter((i) => i !== item));
     onDrop?.(container, item);
   };
@@ -29,7 +32,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
     setAvailableItems((prev) => [...prev, item]);
   };
 
-  // --- Drag logic (desktop) ---
+  // --- Drag (desktop) ---
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, item: string) => {
     e.dataTransfer.setData("item", item);
     setActiveItem(item);
@@ -41,7 +44,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
     setActiveItem(null);
   };
 
-  // --- Touch drag (mobile fallback) ---
+  // --- Touch (mobile) ---
   const onTouchStart = (item: string) => setActiveItem(item);
   const onTouchEnd = (container: string | null) => {
     if (container && activeItem) handleDrop(container, activeItem);
