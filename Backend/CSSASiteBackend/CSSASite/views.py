@@ -19,6 +19,12 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 skill_margin = 30
+task_completed_score_threshold = 70
+
+# coeficients for skill 
+correctness_coef = 10
+time_coef = 10
+max_time = 10
 
 class GetTasksAPI(RetrieveAPIView):
     permission_classes = (AllowAny, )
@@ -68,7 +74,7 @@ class GetTaskAPI(RetrieveAPIView):
         user = SiteUser.objects.get(id=1)
 
         knowledge_domain_id = request.GET.get('knowledge_domain_id','-1')
-        task_type_selected = request.GET.get('task-type', '-1')
+        task_type_selected = request.GET.get('task_type', '-1')
         logger.debug(knowledge_domain_id)
         if int(knowledge_domain_id) < 0:
             Response([], status=status.HTTP_404_NOT_FOUND)
@@ -76,15 +82,18 @@ class GetTaskAPI(RetrieveAPIView):
             Response([], status=status.HTTP_404_NOT_FOUND)
         
         user_task_completion = TaskCompletion.objects.filter(user=user)
+        done_task_ids = []
+        for task_completion in user_task_completion:
+            done_task_ids.append(task_completion.task.id)
         possible_tasks = Task.objects.filter(
             difficulty__lte=user.skill_rating, 
             difficulty__gte=user.skill_rating-skill_margin, 
             knowledge_domain=knowledge_domain_id,
             task_type=task_type_selected
-            ).exclude(id__in=user_task_completion)
+            ).exclude(id__in=done_task_ids)
         
         max = len(possible_tasks)
-        if max == 1:
+        if max <= 1:
             task = possible_tasks[0]
         else:
             task_index = randint(0, max-1)
@@ -131,15 +140,46 @@ class GetKnowledgeDomainsAPI(RetrieveAPIView):
         knowledge_domain_serializer = KnowledgeDomainSerializer(knowledge_domains, many=True)
         return Response(knowledge_domain_serializer.data, status=status.HTTP_200_OK)
     
+class DomainPerformanceAPI(RetrieveAPIView):
+    permission_classes = (AllowAny, )
+    queryset = KnowledgeDomain.objects.all()
+   
+    def get(self, request, format=None):
+        user_id = 1
+        user = SiteUser.objects.get(id=user_id)
+
+        knowledge_domain_id = request.GET.get('knowledge_domain_id','-1')
+        logger.debug(knowledge_domain_id)
+        if int(knowledge_domain_id) < 0:
+            return Response({"error":"wrong knowledge domain id"}, status=status.HTTP_404_NOT_FOUND)
+
+        response_json = {}
+        knowledge_domain = KnowledgeDomain.objects.get(id=knowledge_domain_id)
+        response_json["domain_name"] = knowledge_domain.knowledge_domain_name
+
+        domain_wide_correctness = 0
+        domain_avg_correctness = 0
+        tasks_done_in_knowledge_domain = TaskCompletion.objects.filter(user=user, task__knowledge_domain=knowledge_domain)
+        for task_completion in tasks_done_in_knowledge_domain:
+            domain_wide_correctness += task_completion.correctness_score
+
+        if len(tasks_done_in_knowledge_domain) > 0:
+            domain_avg_correctness = domain_wide_correctness/len(tasks_done_in_knowledge_domain)
+        response_json["avg_correctness"] = domain_avg_correctness
+
+        return Response(response_json, status=status.HTTP_200_OK)
+    
 class CreateTaskCompletionAPI(CreateAPIView):
     permission_classes = (AllowAny, )
 
     def post(self, request, format=None):
+        response = {}
         data = request.data
-        dict = data.dict()
+        dict = data
 
         #userid = f'{request.user.id}'
         userid = 1
+        user = SiteUser.objects.get(id=userid)
         dict['user'] = userid
 
         logger.debug(dict)
@@ -150,26 +190,52 @@ class CreateTaskCompletionAPI(CreateAPIView):
         task_answers = dict["answers"]
 
         overall_correctness_score = 0
+        avg_correctness = 0
         match task.task_type:
             case 0:
                 # multiple choice question
                 for answer in task_answers:
-                    answer_correctness = answer["correctness"]
-                    overall_correctness_score += answer_correctness
+                    answer_option_id = answer["answer_id"]
+                    answer_option = TaskOption.objects.get(id=answer_option_id)
+                    was_selected = answer["selected"]
+                    if was_selected:
+                        overall_correctness_score += answer_option
+                avg_correctness = overall_correctness_score/len(task_answers)
             case 1:
-                # drag and drop choice answer handling 
-                field_id = answer["field"]
-                drop_option_id = answer["drop_option"]
-                evaluation = TaskDropEvaluation.objects.get(drop_field=field_id, drop_option=drop_option_id)
-                overall_correctness_score += evaluation.correctness
+                # drag and drop choice answer handling
+                for answer in task_answers:
+                    field_id = answer["field"]
+                    drop_option_id = answer["drop_option"]
+                    try:
+                        evaluation = TaskDropEvaluation.objects.get(drop_field=field_id, drop_option=drop_option_id)
+                    except TaskDropEvaluation.DoesNotExist:
+                        evaluation = None
+
+                    if evaluation is not None:
+                        overall_correctness_score += evaluation.correctness
+                        avg_correctness = overall_correctness_score/len(task_answers)
             case 2:
-                pass
+                answer_option_id = answer["answer_id"]
+                answer_option = TaskOption.objects.get(id=answer_option_id)
+                overall_correctness_score = answer_option.correctness
 
         time_taken = dict["response_time"]
 
+        if avg_correctness >= task_completed_score_threshold:
+            response["task_successful"]=True
+        else:
+            response["task_successful"]=False
+        response["response_time"]=time_taken
+        response["avg_correctness"]=avg_correctness
 
-        #return Response([], status=status.HTTP_201_CREATED)
-        return Response([], status=status.HTTP_400_BAD_REQUEST)
+        new_task_completion = TaskCompletion(task=task, user=user, response_time=time_taken, correctness_score=avg_correctness)
+        new_task_completion.save()
+
+        skill_rating = avg_correctness/100 * correctness_coef + (max_time - time_taken)/max_time * time_coef
+        user.skill_rating = user.skill_rating + skill_rating
+        user.save()
+
+        return Response(response, status=status.HTTP_200_OK)
 
 #--------------- User API -----------------------
 class CreateUserAPI(CreateAPIView):

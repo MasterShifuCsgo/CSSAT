@@ -148,14 +148,12 @@ class TaskCompletion(models.Model):
         blank=False
     )
 
-    response_time = models.TimeField(null=False, blank=False)
-
-    overall_task_score = models.IntegerField(null=False, blank=False)
+    response_time = models.FloatField(null=False, blank=False)
 
     correctness_score = models.FloatField(null=False, blank=False)
 
     def __str__(self):
-        return f'{self.user} {self.task} {self.response_time} {self.overall_task_score} {self.correctness_score}'
+        return f'{self.user} {self.task} {self.response_time} {self.correctness_score}'
 
 class ScenarioTable(models.Model):
     task = models.ForeignKey(
