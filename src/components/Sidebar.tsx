@@ -3,10 +3,10 @@ import { BiBarChartAlt2, BiBookOpen, BiCog, BiStar } from "react-icons/bi";
 import { FaBarcode } from "react-icons/fa";
 
 const navItems = [
-  { to: "/", label: "Tasks", icon: <BiBookOpen size={20} /> },
-  { to: "/", label: "Leaderboard", icon: <BiBarChartAlt2 size={20} /> },
-  { to: "/", label: "My Skills", icon: <BiStar size={20} /> },
-  { to: "/", label: "Settings", icon: <BiCog size={20} /> },
+  { to: "/start", label: "Tasks", icon: <BiBookOpen size={20} /> },
+  { to: "/leaderboard", label: "Leaderboard", icon: <BiBarChartAlt2 size={20} /> },
+  { to: "/mySkills", label: "My Skills", icon: <BiStar size={20} /> },
+  { to: "/settings", label: "Settings", icon: <BiCog size={20} /> },
 ];
 
 const Sidebar = () => {
@@ -95,7 +95,7 @@ const Sidebar = () => {
           <footer className="mt-auto p-3 flex flex-col">
             <div className="flex flex-row items-center justify-between">
               <NavLink
-                to="/"
+                to="/profile"
                 className="w-full flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800 dark:text-neutral-200"
               >
                 Profile

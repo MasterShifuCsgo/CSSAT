@@ -2,13 +2,13 @@ import {NavLink} from "react-router-dom";
 
 const navItems = [
     { name: "Main", link: "/" },
-    { name: "About", link: "/about" },
-    { name: "Contacts", link: "/contact" }
+    // { name: "About", link: "/about" },
+    // { name: "Contacts", link: "/contact" }
 ];
 
 const Navbar = () => {
     return (
-        <header className={`hidden md:flex w-full z-[100] top-0 left-0 px-[5%] py-5 bg-transparent justify-between items-center `}>
+        <header className={`fixed flex w-full z-[100] top-0 left-0 px-[5%] py-5 bg-transparent justify-between items-center `}>
             <NavLink to='/' className={`text-3xl font-bold text-white`}>CSSAT</NavLink>
             <nav>
                 {navItems.map((item, index) =>
@@ -23,4 +23,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

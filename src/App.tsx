@@ -7,6 +7,10 @@ import Task from '@/pages/Task.tsx'
 
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import Leaderboard from "@/pages/Leaderboard.tsx";
+import MySkills from "@/pages/MySkills.tsx";
+import Settings from "@/pages/MySkills.tsx";
+import Profile from "@/pages/Profile.tsx";
 
 async function loadPreline() {
   return import('preline/dist/index.js')
@@ -37,6 +41,10 @@ function App() {
         <Route path="/about" element={<About/>} />
         <Route path="/contact" element={<Contact/>} />
         <Route path="/start" element={<Start/>} />
+        <Route path="/leaderboard" element={<Leaderboard/>} />
+        <Route path="/mySkills" element={<MySkills/>} />
+        <Route path="/settings" element={<Settings/>} />
+        <Route path="/profile" element={<Profile/>} />
         <Route path="/task/:domain/:taskType" element={<Task/>} />
       </Routes>
     </>
