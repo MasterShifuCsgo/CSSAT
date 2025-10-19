@@ -1,6 +1,3 @@
-# 3AS
-Trijų angelų studijos internetinis puslapis
-
 # Demo installation instructions
 This react project requires 'npm', 'Node.js' and python 3.12+
 
