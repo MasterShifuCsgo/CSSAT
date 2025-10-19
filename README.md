@@ -20,7 +20,7 @@ Install backend dependencies with: pip install -r ./Backend/CSSASiteBackend/requ
 
 Once it is finished, you can run the demo frontend with: npm run dev
 
-And run demo backend with: ./Backend/CSSASiteBackend/manage.py runserver
+And run demo backend with: python ./Backend/CSSASiteBackend/manage.py runserver
 
 Then simply enter 'localhost:5173' in your browser of choice
 
