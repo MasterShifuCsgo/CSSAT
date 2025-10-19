@@ -2,9 +2,11 @@
 Trijų angelų studijos internetinis puslapis
 
 # Demo installation instructions
-This react project requires 'npm' and 'Node.js'
+This react project requires 'npm', 'Node.js' and python 3.12+
 
 Node.js can be downloaded from the [Node.Js](https://nodejs.org/en/download) website
+
+Python can be downloaded from [Download Python](https://www.python.org/downloads/)
 
 To download the latest version of npm, on the command line, run the following command: npm install -g npm
 
@@ -14,7 +16,11 @@ Navigate to the directory of the demo with: cd /demo/directory
 
 Then install dependencies with: npm install
 
-Once it is finished, you can run the demo with: npm run dev
+Install backend dependencies with: pip install -r ./Backend/CSSASiteBackend/requirements.txt
+
+Once it is finished, you can run the demo frontend with: npm run dev
+
+And run demo backend with: python ./Backend/CSSASiteBackend/manage.py runserver
 
 Then simply enter 'localhost:5173' in your browser of choice
 
@@ -55,3 +61,13 @@ tw-animate-css: ^1.3.6
 typescript: ~5.8.3  
 typescript-eslint: ^8.35.1  
 vite: ^7.0.4  
+
+# Backend dependencies
+Listed in Backend/CSSASiteBackend/requirements.txt:
+asgiref==3.10.0
+Django==5.2.7
+django-rest-knox==5.0.2
+djangorestframework==3.16.1
+sqlparse==0.5.3
+django-cors-headers==4.6.0
+
